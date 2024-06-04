@@ -1,0 +1,106 @@
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from mlxtend.frequent_patterns import apriori
+from mlxtend.frequent_patterns import association_rules
+
+sns.set(style="darkgrid", color_codes=True)
+pd.set_option('display.max_columns', 75)
+
+data = pd.read_csv('Mall_Customers.csv', header = None)
+data.info()
+
+data.head()
+
+data.describe()
+
+#
+
+
+color = plt.cm.rainbow(np.linspace(0, 1, 40))
+data[0].value_counts().head(40).plot.bar(color = color, figsize=(13,5))
+plt.title('frequency of most popular items', fontsize = 20)
+plt.xticks(rotation = 90 )
+plt.grid()
+plt.show()
+
+#
+
+
+import networkx as nx
+data['food'] = 'Food'
+food = data.truncate(before = -1, after = 15)
+food = nx.from_pandas_edgelist(food, source = 'food', target = 0, edge_attr = True)
+
+import warnings
+warnings.filterwarnings('ignore')
+
+plt.rcParams['figure.figsize'] = (13, 13)
+pos = nx.spring_layout(food)
+color = plt.cm.Set1(np.linspace(0, 15, 1))
+nx.draw_networkx_nodes(food, pos, node_size = 15000, node_color = color)
+nx.draw_networkx_edges(food, pos, width = 3, alpha = 0.6, edge_color = 'black')
+nx.draw_networkx_labels(food, pos, font_size = 20, font_family = 'sans-serif')
+plt.axis('off')
+plt.grid()
+plt.title('Top 15 First Choices', fontsize = 20)
+plt.show()
+
+
+#
+
+
+# Getting the list of transactions from the dataset
+transactions = []
+for i in range(0, len(data)):
+    transactions.append([str(data.values[i,j]) for j in range(0, len(data.columns))])
+
+transactions[:1]
+
+print(
+
+[['shrimp',
+  'almonds',
+  'avocado',
+  'vegetables mix',
+  'green grapes',
+  'whole weat flour',
+  'yams',
+  'cottage cheese',
+  'energy drink',
+  'tomato juice',
+  'low fat yogurt',
+  'green tea',
+  'honey',
+  'salad',
+  'mineral water',
+  'salmon',
+  'antioxydant juice',
+  'frozen smoothie',
+  'spinach',
+  'olive oil',
+  'Food']]
+)
+
+
+#
+
+from itertools import permutations
+# Extract unique items.
+flattened = [item for transaction in transactions for item in transaction]
+items = list(set(flattened))
+
+print('# of items:',len(items))
+print(list(items))
+
+if 'nan' in items: items.remove('nan')
+print(list(items))
+
+#
+
+# Compute and print rules.
+rules = list(permutations(items, 2))
+print('# of rules:',len(rules))
+print(rules[:5])
