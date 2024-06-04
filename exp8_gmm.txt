@@ -1,0 +1,88 @@
+import numpy as np
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+data = pd.read_csv('/content/8_Iris.csv')
+data.sample(5)
+
+X = data.iloc[:,0:4]
+y = data.iloc[:,-1]
+print(X.sample(5))
+print(y.sample(5))
+
+#
+
+data["variety"].value_counts()
+
+#
+
+import seaborn as sns
+sns.set(style="white", color_codes=True)
+sns.FacetGrid(data, hue="variety").map(plt.scatter, "sepal.length", "sepal.width").add_legend();
+
+#
+
+sns.FacetGrid(data, hue="variety") \
+.map(plt.scatter, "petal.length", "petal.width") \
+.add_legend();
+
+#
+
+sns.swarmplot(x="variety", y="petal.length", data=data)
+plt.grid()
+
+#
+
+sns.pairplot(data, hue="variety", diag_kind="hist", size=1.6);
+
+#
+
+from sklearn import preprocessing
+scaler = preprocessing.StandardScaler()
+scaler.fit(X)
+X_scaled_array = scaler.transform(X)
+X_scaled = pd.DataFrame(X_scaled_array, columns = X.columns)
+X_scaled.sample(5)
+
+#
+
+from sklearn.decomposition import PCA
+ndimensions = 2
+pca = PCA(n_components=ndimensions, random_state=50)
+pca.fit(X_scaled)
+X_pca_array = pca.transform(X_scaled)
+X_pca = pd.DataFrame(X_pca_array, columns=['PC1','PC2'])
+
+X_pca.sample(5)
+
+#
+
+from sklearn.mixture import GaussianMixture
+nclusters = 3
+gmm = GaussianMixture(n_components=nclusters)
+gmm.fit(X_scaled)
+# predict the cluster for each data point
+y_cluster_gmm = gmm.predict(X_scaled)
+y_cluster_gmm
+
+#
+
+import matplotlib.pyplot as plt
+# Create a scatter plot with different colors for each cluster
+plt.scatter(X_pca['PC1'], X_pca['PC2'], c=y_cluster_gmm, cmap='viridis')
+# Add labels and title
+plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.title('Clusters formed by Gaussian Mixture Model')
+# Show the plot
+plt.show()
+
+
+#
+
+from sklearn.metrics.cluster import adjusted_rand_score
+score = adjusted_rand_score(y, y_cluster_gmm)
+score
+
+
