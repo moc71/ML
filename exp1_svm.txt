@@ -1,0 +1,25 @@
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+iris=datasets.load_iris()
+iris.keys()
+iris=pd.DataFrame(data=np.c_[iris['data'],iris['target']],columns=(iris['feature_names']+['target']))
+iris.head()
+
+#
+
+from sklearn.model_selection import train_test_split
+x=iris.drop(['sepal length (cm)','sepal width (cm)','target'],axis=1)
+y=iris.target
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.55,random_state=42)
+
+#
+
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+kernels=['linear','poly','rbf']
+for kernel in kernels:
+  model=SVC(kernel=kernel)
+  model.fit(x_train,y_train)
+  pred=model.predict(x_test)
+  print("Accuracy using {}:".format(kernel),accuracy_score(pred,y_test))
