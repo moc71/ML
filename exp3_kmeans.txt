@@ -1,0 +1,33 @@
+import numpy as np
+import pandas as pd
+data=pd.read_csv("Mall_Customers.csv")
+data.head()
+
+#
+
+from sklearn.cluster import KMeans
+x=data.iloc[:,[3,4]].values
+wcss_list=[]
+for i in range(1,11):
+  kmeans=KMeans(n_clusters=i,init='k-means++',random_state=42)
+  kmeans.fit(x)
+  wcss_list.append(kmeans.inertia_)
+
+#
+
+import matplotlib.pyplot as plt
+plt.plot(range(1,11),wcss_list)
+plt.title('mall_customers')
+
+#
+
+kmeans=KMeans(n_clusters=5,init='k-means++',random_state=42)
+ypredict=kmeans.fit_predict(x)
+plt.scatter(x[ypredict==0,0],x[ypredict==0,1],s=100,c='b',label='cluster1')
+plt.scatter(x[ypredict==1,0],x[ypredict==1,1],s=100,c='r',label='cluster2')
+plt.scatter(x[ypredict==2,0],x[ypredict==2,1],s=100,c='y',label='cluster3')
+plt.scatter(x[ypredict==3,0],x[ypredict==3,1],s=100,c='g',label='cluster4')
+plt.scatter(x[ypredict==4,0],x[ypredict==4,1],s=100,c='violet',label='cluster5')
+plt.legend()
+plt.show()
+
